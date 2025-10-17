@@ -1,0 +1,27 @@
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Compiled code and build artifacts
+*.o
+*.pyc
+*.class
+build/
+dist/
+
+# Dependency folders
+node_modules/
+vendor/
+
+# Runtime files
+*.log
+*.tmp
+*.lock
+
+# Sensitive data
+.env
