@@ -22,3 +22,29 @@ export const getAllTodos = async(req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+
+export const deleteTodo = async(req, res) => {
+    try {
+        const todo = await TodoList.findByIdAndDelete(req.params.id);
+        if(!todo) {
+            return res.status(404).json({message: "Todo not found"});
+        }
+        res.status(200).json({message: "Todo deleted successfully"});
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({message: error.message});
+    }
+}
+
+export const updateTodo = async(req, res) => {
+    try {
+        const todo = await TodoList.findByIdAndUpdate(req.params.id);
+        if(!todo) {
+            return res.status(404).json({ message: "Todo not found" })
+        }
+        res.status(200).json({message:"Todo Updated successfully!"})
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({message: error.message});
+    }
+}
