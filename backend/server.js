@@ -12,7 +12,12 @@ app.get("/", (req, res) => {
     res.send("Server Is Live!");
 });
 
-app.use(cors())
+app.use(cors({
+    origin: "https://todolist-production-ac07.up.railway.app/",
+    credentials: true
+}))
+
+
 app.use(express.json());
 
 // Routes
