@@ -42,7 +42,9 @@ export const updateTodo = async(req, res) => {
         if(!todo) {
             return res.status(404).json({ message: "Todo not found" })
         }
-        res.status(200).json({message:"Todo Updated successfully!"})
+        todo.set(req.body);
+        await todo.save();
+        res.status(200).json(todo);
     } catch (error) {
         console.log(error.message);
         res.status(500).json({message: error.message});
