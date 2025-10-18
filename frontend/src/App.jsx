@@ -7,11 +7,11 @@ const App = () => {
   const [editingId, setEditingId] = useState(null)
   const [editValue, setEditValue] = useState('')
   const [filter, setFilter] = useState('all') // 'all', 'active', 'completed'
-  const [apiUrl] = useState('http://localhost:3000/api/todos') // Update this to your backend URL
+  const [apiUrl] = useState('http://localhost:5000/api/todos') // Update this to your backend URL
 
-  // Fetch todos from backend (uncomment when backend is ready)
+  // Fetch todos from backend on component mount
   useEffect(() => {
-    // fetchTodos()
+    fetchTodos()
   }, [])
 
   const fetchTodos = async () => {
@@ -28,90 +28,74 @@ const App = () => {
     if (inputValue.trim() === '') return
 
     const newTodo = {
-      id: Date.now(),
       text: inputValue,
-      completed: false,
-      createdAt: new Date().toISOString()
+      completed: false
     }
 
-    // Uncomment when backend is ready
-    // try {
-    //   const response = await fetch(apiUrl, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(newTodo)
-    //   })
-    //   const data = await response.json()
-    //   setTodos([...todos, data])
-    // } catch (error) {
-    //   console.error('Error adding todo:', error)
-    // }
-
-    // Local state update (remove when backend is ready)
-    setTodos([...todos, newTodo])
-    setInputValue('')
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTodo)
+      })
+      const data = await response.json()
+      setTodos([...todos, data])
+      setInputValue('')
+    } catch (error) {
+      console.error('Error adding todo:', error)
+    }
   }
 
   const deleteTodo = async (id) => {
-    // Uncomment when backend is ready
-    // try {
-    //   await fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
-    //   setTodos(todos.filter(todo => todo.id !== id))
-    // } catch (error) {
-    //   console.error('Error deleting todo:', error)
-    // }
-
-    // Local state update (remove when backend is ready)
-    setTodos(todos.filter(todo => todo.id !== id))
+    try {
+      await fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
+      setTodos(todos.filter(todo => todo._id !== id))
+    } catch (error) {
+      console.error('Error deleting todo:', error)
+    }
   }
 
   const toggleTodo = async (id) => {
-    const todo = todos.find(t => t.id === id)
+    const todo = todos.find(t => t._id === id)
     const updatedTodo = { ...todo, completed: !todo.completed }
 
-    // Uncomment when backend is ready
-    // try {
-    //   await fetch(`${apiUrl}/${id}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(updatedTodo)
-    //   })
-    //   setTodos(todos.map(t => t.id === id ? updatedTodo : t))
-    // } catch (error) {
-    //   console.error('Error toggling todo:', error)
-    // }
-
-    // Local state update (remove when backend is ready)
-    setTodos(todos.map(t => t.id === id ? updatedTodo : t))
+    try {
+      const response = await fetch(`${apiUrl}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedTodo)
+      })
+      const data = await response.json()
+      setTodos(todos.map(t => t._id === id ? data : t))
+    } catch (error) {
+      console.error('Error toggling todo:', error)
+    }
   }
 
   const startEdit = (todo) => {
-    setEditingId(todo.id)
+    setEditingId(todo._id)
     setEditValue(todo.text)
   }
 
   const saveEdit = async (id) => {
     if (editValue.trim() === '') return
 
-    const todo = todos.find(t => t.id === id)
+    const todo = todos.find(t => t._id === id)
     const updatedTodo = { ...todo, text: editValue }
 
-    // Uncomment when backend is ready
-    // try {
-    //   await fetch(`${apiUrl}/${id}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(updatedTodo)
-    //   })
-    //   setTodos(todos.map(t => t.id === id ? updatedTodo : t))
-    // } catch (error) {
-    //   console.error('Error updating todo:', error)
-    // }
-
-    // Local state update (remove when backend is ready)
-    setTodos(todos.map(t => t.id === id ? updatedTodo : t))
-    setEditingId(null)
-    setEditValue('')
+    try {
+      const response = await fetch(`${apiUrl}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedTodo)
+      })
+      const data = await response.json()
+      setTodos(todos.map(t => t._id === id ? data : t))
+      setEditingId(null)
+      setEditValue('')
+    } catch (error) {
+      console.error('Error updating todo:', error)
+    }
   }
 
   const cancelEdit = () => {
@@ -243,7 +227,7 @@ const App = () => {
           ) : (
             filteredTodos.map((todo) => (
               <div
-                key={todo.id}
+                key={todo._id}
                 className={`bg-white rounded-lg shadow-md p-4 transition-all hover:shadow-lg ${
                   todo.completed ? 'opacity-75' : ''
                 }`}
@@ -251,7 +235,7 @@ const App = () => {
                 <div className="flex items-center gap-3">
                   {/* Toggle Button */}
                   <button
-                    onClick={() => toggleTodo(todo.id)}
+                    onClick={() => toggleTodo(todo._id)}
                     className="flex-shrink-0 transition-transform hover:scale-110"
                   >
                     {todo.completed ? (
@@ -262,12 +246,12 @@ const App = () => {
                   </button>
 
                   {/* Todo Text */}
-                  {editingId === todo.id ? (
+                  {editingId === todo._id ? (
                     <input
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      onKeyDown={(e) => handleEditKeyPress(e, todo.id)}
+                      onKeyDown={(e) => handleEditKeyPress(e, todo._id)}
                       className="flex-1 px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                       autoFocus
                     />
@@ -285,10 +269,10 @@ const App = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2">
-                    {editingId === todo.id ? (
+                    {editingId === todo._id ? (
                       <>
                         <button
-                          onClick={() => saveEdit(todo.id)}
+                          onClick={() => saveEdit(todo._id)}
                           className="p-2 text-green-600 hover:bg-green-50 rounded-md transition"
                           title="Save"
                         >
@@ -312,7 +296,7 @@ const App = () => {
                           <Edit2 size={20} />
                         </button>
                         <button
-                          onClick={() => deleteTodo(todo.id)}
+                          onClick={() => deleteTodo(todo._id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-md transition"
                           title="Delete"
                         >
